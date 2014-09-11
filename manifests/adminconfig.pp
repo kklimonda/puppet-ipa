@@ -11,19 +11,26 @@ define ipa::adminconfig (
     }
 
     $kadminlocalcmd = shellquote('/usr/sbin/kadmin.local','-q',"ktadd -norandkey -k admin.keytab admin")
-    $k5startcmd = shellquote('/usr/bin/k5start','-f',"${::ipa_adminhomedir}/admin.keytab",'-U','-o','admin','-k',"/tmp/krb5cc_${::ipa_adminuidnumber}")
-
     exec { "admin_keytab":
-      command => "$kadminlocalcmd ; $k5startcmd > /dev/null 2>&1",
+      command => "$kadminlocalcmd > /dev/null 2>&1",
       cwd     => "${::ipa_adminhomedir}",
       unless  => shellquote('/usr/bin/kvno','-c',"/tmp/krb5cc_${::ipa_adminuidnumber}",'-k',"${::ipa_adminhomedir}/admin.keytab","admin@${realm}"),
-      notify  => File["${::ipa_adminhomedir}/admin.keytab"],
+      notify  => [
+        File["${::ipa_adminhomedir}/admin.keytab"],
+        Exec['k5start_admin_exec'],
+      ],
       require => Cron["k5start_admin"]
     }
 
+    exec { 'k5start_admin_exec':
+      command     => "/usr/bin/k5start -f ${::ipa_adminhomedir}/admin.keytab -U > /dev/null 2>&1",
+      user        => 'admin',
+      refreshonly => true,
+    }
+
     cron { "k5start_admin":
-      command => "/usr/bin/k5start -f ${::ipa_adminhomedir}/admin.keytab -U -o admin -k /tmp/krb5cc_${::ipa_adminuidnumber} > /dev/null 2>&1",
-      user    => 'root',
+      command => "/usr/bin/k5start -f ${::ipa_adminhomedir}/admin.keytab -U > /dev/null 2>&1",
+      user    => 'admin',
       minute  => "*/1",
       require => [Package["kstart"], K5login["${::ipa_adminhomedir}/.k5login"], File["$::ipa_adminhomedir"]]
     }
