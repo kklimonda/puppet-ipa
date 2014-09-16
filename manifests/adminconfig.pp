@@ -24,6 +24,7 @@ define ipa::adminconfig (
 
     exec { 'k5start_admin_exec':
       command     => "/usr/bin/k5start -f ${::ipa_adminhomedir}/admin.keytab -U > /dev/null 2>&1",
+      environment => ["KRB5CCNAME=KEYRING:persistent:$::ipa_adminuidnumber"],
       user        => 'admin',
       refreshonly => true,
     }
