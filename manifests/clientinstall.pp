@@ -30,7 +30,7 @@ define ipa::clientinstall (
     default => ''
   }
 
-  $clientinstallcmd = shellquote('/usr/sbin/ipa-client-install',"--server=${masterfqdn}","--hostname=${host}","--domain=${domain}","--realm=${realm}","--password=${otp}",$mkhomediropt,$ntpopt,$fixedprimaryopt,'--unattended')
+  $clientinstallcmd = shellquote('/usr/sbin/ipa-client-install',"--server=${masterfqdn}","--hostname=${host}","--domain=${domain}","--realm=${realm}","--password=${otp}",$mkhomediropt,$ntpopt,$fixedprimaryopt,'--unattended', '--enable-dns-updates', '--ssh-trust-dns')
   $dc = prefix([regsubst($domain,'(\.)',',dc=','G')],'dc=')
 
   exec { "client-install-${host}":
