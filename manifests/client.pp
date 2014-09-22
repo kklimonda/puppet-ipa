@@ -35,7 +35,7 @@ class ipa::client (
   $location      = {}
 ) {
 
-  Ipa::Clientinstall <<| |>> {
+  Ipa::Clientinstall <<| title == $::fqdn |>> {
     name         => $::fqdn,
     otp          => $ipa::client::otp,
     domain       => $ipa::client::domain,
@@ -104,7 +104,7 @@ class ipa::client (
       require => File['/etc/pki']
     }
 
-    File['/etc/pki/nssdb'] -> Ipa::Clientinstall <<| |>>
+    File['/etc/pki/nssdb'] -> Ipa::Clientinstall <<| title == $::fqdn |>>
 
     if $ipa::client::sudo and $ipa::client::debiansudopkg {
       @package { 'sudo-ldap':
