@@ -16,7 +16,6 @@ define ipa::hostadd (
       masterfqdn => $::fqdn,
       domain     => $ipa::master::domain,
       realm      => $ipa::master::realm,
-      adminpw    => $ipa::master::adminpw,
       otp        => '',
       mkhomedir  => '',
       ntp        => ''
