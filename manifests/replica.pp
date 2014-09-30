@@ -55,6 +55,13 @@ class ipa::replica (
     dport  => ['88','123','464']
   }
 
+  # admin is uploading ipa replication data to /var/lib/ipa
+  file { '/var/lib/ipa':
+    ensure => directory,
+    group  => 'admins',
+    mode   => '0775',
+  }
+
   ipa::replicainstall { "$::fqdn":
     adminpw => $ipa::replica::adminpw,
     dspw    => $ipa::replica::dspw,
