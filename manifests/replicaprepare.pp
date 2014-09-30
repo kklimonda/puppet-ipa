@@ -16,10 +16,15 @@ define ipa::replicaprepare (
     command => "$replicapreparecmd ${host}",
     unless  => "$replicamanagecmd list | /bin/grep ${host} >/dev/null 2>&1",
     timeout => '0'
-  }
-
+  }->
+  file { $file:
+    ensure => present,
+    owner  => 'root',
+    group  => 'admins',
+  }->
   exec { "replica-info-scp-${host}":
-    command     => shellquote('/usr/bin/scp','-q','-o','StrictHostKeyChecking=no','-o','GSSAPIAuthentication=yes','-o','ConnectTimeout=5','-o','ServerAliveInterval=2',"${file}","root@${host}:${file}"),
+    command     => shellquote('/usr/bin/scp','-q','-o','StrictHostKeyChecking=no','-o','GSSAPIAuthentication=yes','-o','ConnectTimeout=5','-o','ServerAliveInterval=2',"${file}","admin@${host}:${file}"),
+    user        => 'admin',
     refreshonly => true,
     tries       => '60',
     try_sleep   => '60'
